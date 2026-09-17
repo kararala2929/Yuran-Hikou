@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>遊覧飛行 — Island Flyover</title>
+    <meta name="description" content="リゾート島を飛行機で自由に遊覧する3Dフライトゲーム">
+    <link rel="stylesheet" href="style.css">
+
+    <script type="importmap">
+    {
+        "imports": {
+            "three":          "https://cdn.jsdelivr.net/npm/three@0.170.0/build/three.module.js",
+            "three/addons/":  "https://cdn.jsdelivr.net/npm/three@0.170.0/examples/jsm/",
+            "simplex-noise":  "https://cdn.jsdelivr.net/npm/simplex-noise@4.0.3/+esm"
+        }
+    }
+    </script>
+</head>
+<body>
+
+<!-- ═══════════ ローディング画面 ═══════════ -->
+<div id="loading">
+    <div class="loading-content">
+        <h1>🏝️ 遊覧飛行</h1>
+        <p>島を生成中…</p>
+        <div class="loading-bar"><div class="loading-fill"></div></div>
+    </div>
+</div>
+
+<!-- ═══════════ スタート画面 ═══════════ -->
+<div id="start-screen" style="display:none">
+    <div class="start-content">
+        <h1>🏝️ 遊覧飛行</h1>
+        <h2>Island Flyover</h2>
+        <button id="start-btn">✈️ フライト開始</button>
+    </div>
+</div>
+
+<!-- ═══════════ ゲームコンテナ ═══════════ -->
+<div id="game-container"></div>
+
+<!-- ═══════════ HUD ═══════════ -->
+<div id="hud" style="display:none">
+
+    <!-- 速度 & 高度 -->
+    <div id="hud-left" class="hud-glass">
+        <div class="hud-row">
+            <span class="hud-label">速度</span>
+            <span class="hud-val"><span id="val-speed">0</span><span class="hud-unit"> km/h</span></span>
+        </div>
+        <div class="hud-row">
+            <span class="hud-label">高度</span>
+            <span class="hud-val"><span id="val-alt">0</span><span class="hud-unit"> m</span></span>
+        </div>
+    </div>
+
+    <!-- コンパス -->
+    <div id="hud-top" class="hud-glass">
+        <span id="val-heading">000° N</span>
+    </div>
+
+    <!-- 速度バー -->
+    <div id="speed-bar-container">
+        <div id="speed-bar" style="height:33%"></div>
+    </div>
+
+    <!-- 操作ヘルプ -->
+    <div id="help-panel" class="hud-glass">
+        <div class="help-grid">
+            <span class="key">W / ↑</span><span class="desc">降下</span>
+            <span class="key">S / ↓</span><span class="desc">上昇</span>
+            <span class="key">A / ←</span><span class="desc">左ロール</span>
+            <span class="key">D / →</span><span class="desc">右ロール</span>
+            <span class="key">Q / E</span><span class="desc">左右ヨー</span>
+            <span class="key">Shift</span><span class="desc">加速</span>
+            <span class="key">Ctrl</span><span class="desc">減速</span>
+            <span class="key">H</span><span class="desc">ヘルプ表示</span>
+        </div>
+    </div>
+
+</div>
+
+<!-- ═══════════ メインスクリプト ═══════════ -->
+<script type="module" src="js/main.js"></script>
+
+</body>
+</html>
