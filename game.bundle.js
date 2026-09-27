@@ -20070,13 +20070,13 @@ void main() {
   var MAX_H = 320;
   var C_SAND_WET = new Color(0.85, 0.74, 0.48);
   var C_SAND_DRY = new Color(0.965, 0.898, 0.553);
-  var C_GRASS_LOW = new Color(0.28, 0.55, 0.18);
-  var C_GRASS_MID = new Color(0.22, 0.45, 0.12);
-  var C_GRASS_HIGH = new Color(0.16, 0.38, 0.08);
-  var C_ROCK_LIGHT = new Color(0.5, 0.46, 0.4);
-  var C_ROCK_DARK = new Color(0.35, 0.32, 0.28);
-  var C_SNOW_BASE = new Color(0.9, 0.9, 0.92);
-  var C_SNOW_PEAK = new Color(0.97, 0.97, 0.99);
+  var C_GRASS_LOW = new Color(0.18, 0.8, 0.44);
+  var C_GRASS_MID = new Color(0.15, 0.68, 0.38);
+  var C_GRASS_HIGH = new Color(0.12, 0.51, 0.3);
+  var C_GRASS_PEAK = new Color(0.1, 0.44, 0.24);
+  var C_ROCK_BROWN_LIGHT = new Color(0.55, 0.43, 0.39);
+  var C_ROCK_BROWN_MID = new Color(0.47, 0.33, 0.28);
+  var C_ROCK_BROWN_DARK = new Color(0.36, 0.25, 0.22);
   var C_LAVA_DARK = new Color(0.22, 0.1, 0.06);
   var C_LAVA_MID = new Color(0.38, 0.18, 0.1);
   var _tmpA = new Color();
@@ -20201,8 +20201,8 @@ void main() {
         return;
       }
       if (vd < 0.22 && h > 180) {
-        const t = Math.min(1, (h - 180) / 100);
-        out.copy(_tmpA.copy(C_LAVA_MID).lerp(C_LAVA_DARK, t));
+        const t2 = Math.min(1, (h - 180) / 100);
+        out.copy(_tmpA.copy(C_LAVA_MID).lerp(C_LAVA_DARK, t2));
         out.r += microDetail;
         out.g += microDetail * 0.3;
         return;
@@ -20219,13 +20219,13 @@ void main() {
         return;
       }
       if (h < 4) {
-        const t = (h - 2.5) / 1.5;
+        const t2 = (h - 2.5) / 1.5;
         const wetSand = _tmpA.copy(C_SAND_WET);
         wetSand.r += microDetail * 0.5;
         wetSand.g += microDetail * 0.4;
         const drySand = _tmpB.copy(C_SAND_DRY);
         drySand.r += detailVal * 0.03;
-        out.lerpColors(wetSand, drySand, t);
+        out.lerpColors(wetSand, drySand, t2);
         return;
       }
       if (h < 6) {
@@ -20236,66 +20236,61 @@ void main() {
         return;
       }
       if (h < 14) {
-        const t = (h - 6) / 8;
+        const t2 = (h - 6) / 8;
         const sand = _tmpA.copy(C_SAND_DRY);
         sand.r += detailVal * 0.04;
         sand.g += detailVal * 0.03;
         const grass = _tmpB.copy(C_GRASS_LOW);
         grass.r += microDetail;
         grass.g += microDetail * 0.5;
-        out.lerpColors(sand, grass, t * t);
+        out.lerpColors(sand, grass, t2 * t2);
         return;
       }
-      if (slope > 0.4) {
-        const rockBlend = Math.min(1, (slope - 0.4) / 0.35);
-        const grass = _tmpA.copy(h < 60 ? C_GRASS_LOW : C_GRASS_HIGH);
-        const rock = _tmpB.copy(C_ROCK_LIGHT).lerp(C_ROCK_DARK, detailVal);
-        rock.r += microDetail;
-        rock.g += microDetail * 0.8;
-        rock.b += microDetail * 0.6;
-        out.lerpColors(grass, rock, rockBlend);
-        return;
-      }
+      const isSteep = slope > 0.32;
+      const rockBlend = Math.min(1, Math.max(0, (slope - 0.32) / 0.28));
+      const brownRock = _tmpB.copy(C_ROCK_BROWN_MID).lerp(C_ROCK_BROWN_LIGHT, detailVal * 0.7);
+      brownRock.lerp(C_ROCK_BROWN_DARK, (1 - detailVal) * 0.4);
+      brownRock.r += microDetail * 0.4;
+      brownRock.g += microDetail * 0.3;
+      brownRock.b += microDetail * 0.2;
       if (h < 55) {
         out.copy(C_GRASS_LOW);
-        out.r += microDetail * 0.6;
-        out.g += detailVal * 0.08 + microDetail;
-        out.b += microDetail * 0.3;
+        out.r += microDetail * 0.3;
+        out.g += detailVal * 0.05 + microDetail * 0.4;
+        out.b += microDetail * 0.2;
+        if (isSteep) out.lerpColors(out, brownRock, rockBlend * 0.85);
         return;
       }
-      if (h < 110) {
-        const t = (h - 55) / 55;
-        const grassDark = _tmpA.copy(C_GRASS_HIGH);
-        grassDark.g += microDetail * 0.5;
-        const rockMix = _tmpB.copy(C_ROCK_LIGHT).lerp(C_ROCK_DARK, detailVal * 0.6);
-        rockMix.r += microDetail;
-        rockMix.g += microDetail * 0.7;
-        out.lerpColors(grassDark, rockMix, t);
-        return;
-      }
-      if (h < 220) {
-        const t = (h - 110) / 110;
-        const rock = _tmpA.copy(C_ROCK_DARK).lerp(C_ROCK_LIGHT, detailVal * 0.4);
-        rock.r += microDetail * 0.5;
-        rock.g += microDetail * 0.4;
-        const snow = _tmpB.copy(C_SNOW_BASE);
-        snow.r += microDetail * 0.2;
-        snow.g += microDetail * 0.2;
-        snow.b += microDetail * 0.2;
-        out.lerpColors(rock, snow, t * t);
-        if (slope > 0.15) {
-          const rockPatch = _tmpA.copy(C_ROCK_DARK);
-          rockPatch.r += microDetail;
-          out.lerp(rockPatch, Math.min(1, (slope - 0.15) / 0.3) * 0.7);
+      if (h < 120) {
+        const t2 = (h - 55) / 65;
+        const midGreen = _tmpA.copy(C_GRASS_LOW).lerp(C_GRASS_MID, t2);
+        midGreen.g += detailVal * 0.04 + microDetail * 0.3;
+        if (isSteep) {
+          out.lerpColors(midGreen, brownRock, rockBlend * 0.9);
+        } else {
+          out.copy(midGreen);
         }
         return;
       }
-      out.copy(_tmpA.copy(C_SNOW_BASE).lerp(C_SNOW_PEAK, detailVal));
-      out.r += microDetail * 0.15;
-      out.g += microDetail * 0.15;
-      out.b += microDetail * 0.2;
-      if (slope > 0.2) {
-        out.lerp(C_ROCK_DARK, Math.min(1, (slope - 0.2) / 0.25) * 0.6);
+      if (h < 220) {
+        const t2 = (h - 120) / 100;
+        const deepGreen = _tmpA.copy(C_GRASS_MID).lerp(C_GRASS_HIGH, t2);
+        deepGreen.g += detailVal * 0.03 + microDetail * 0.25;
+        if (isSteep) {
+          out.lerpColors(deepGreen, brownRock, rockBlend * 0.92);
+        } else {
+          out.copy(deepGreen);
+        }
+        return;
+      }
+      const t = Math.min(1, (h - 220) / 100);
+      const peakGreen = _tmpA.copy(C_GRASS_HIGH).lerp(C_GRASS_PEAK, t);
+      peakGreen.g += detailVal * 0.03 + microDetail * 0.2;
+      if (slope > 0.25) {
+        const steepRock = Math.min(1, (slope - 0.25) / 0.3);
+        out.lerpColors(peakGreen, brownRock, steepRock * 0.95);
+      } else {
+        out.copy(peakGreen);
       }
     }
   };
@@ -20308,7 +20303,7 @@ void main() {
   var C_SAND_MAIN = new Color(0.965, 0.898, 0.553);
   var C_SAND_BRIGHT = new Color(0.996, 0.941, 0.541);
   var C_SAND_INLAND = new Color(0.9, 0.84, 0.56);
-  var C_GRASS_EDGE = new Color(0.28, 0.55, 0.18);
+  var C_GRASS_EDGE = new Color(0.18, 0.8, 0.44);
   var Beach = class {
     constructor(terrain2) {
       this.terrain = terrain2;
@@ -20590,7 +20585,7 @@ void main() {
   var SKY_MID = 4886745;
   var SKY_HORIZON = 13164528;
   var FOG_COLOR = 13164528;
-  var SUN_COLOR = 16773328;
+  var SUN_COLOR = 16775917;
   var Sky = class {
     constructor() {
       this.clouds = [];
@@ -20650,7 +20645,7 @@ void main() {
 
                     /* \u592A\u967D\u5468\u56F2\u306E\u30CF\u30ED\u30FC */
                     float sunHalo = pow(sunDot, 3.0) * 0.08;
-                    col += vec3(1.0, 0.9, 0.7) * sunHalo;
+                    col += vec3(1.0, 0.95, 0.8) * sunHalo;
 
                     /* \u2500\u2500 \u5730\u5E73\u7DDA\u8FD1\u304F\u306E\u6696\u8272 \u2500\u2500 */
                     float horizonWarm = smoothstep(0.05, 0.0, h) * 0.15;
@@ -20664,13 +20659,13 @@ void main() {
         depthWrite: false
       });
       scene2.add(new Mesh(skyGeo, skyMat));
-      const sun = new DirectionalLight(SUN_COLOR, 2.5);
+      const sun = new DirectionalLight(SUN_COLOR, 3.2);
       sun.position.set(400, 700, 250);
       sun.castShadow = false;
       scene2.add(sun);
-      scene2.add(new HemisphereLight(8900331, 3824932, 0.5));
-      scene2.add(new AmbientLight(9220304, 0.35));
-      const fill = new DirectionalLight(10208482, 0.4);
+      scene2.add(new HemisphereLight(8900331, 4881461, 0.65));
+      scene2.add(new AmbientLight(16774374, 0.65));
+      const fill = new DirectionalLight(16772304, 0.45);
       fill.position.set(-300, 200, -400);
       scene2.add(fill);
       scene2.fog = new FogExp2(FOG_COLOR, 42e-5);
@@ -21273,6 +21268,315 @@ void main() {
     }
   };
 
+  // js/minimap.js
+  var WORLD_HALF = 1250;
+  var ZOOM_HALF = 400;
+  var MAX_TRAIL = 45;
+  var Minimap = class {
+    constructor(terrain2, containerId = "minimap-container", canvasId = "minimap-canvas") {
+      this.terrain = terrain2;
+      this.container = document.getElementById(containerId);
+      this.canvas = document.getElementById(canvasId);
+      this.ctx = this.canvas ? this.canvas.getContext("2d") : null;
+      this.size = 280;
+      if (this.canvas) {
+        this.canvas.width = this.size;
+        this.canvas.height = this.size;
+      }
+      this.mode = "global";
+      this.modeBadge = document.getElementById("minimap-mode-badge");
+      this.trail = [];
+      this.lastTrailTime = 0;
+      this.landmarks = [
+        { icon: "\u{1F30B}", name: "\u706B\u5C71", x: -380, z: -330, color: "#ff6b4a" },
+        { icon: "\u{1F3D8}\uFE0F", name: "\u30BF\u30A6\u30F3", x: 250, z: 220, color: "#4cc9f0" },
+        { icon: "\u{1F5FC}", name: "\u706F\u53F0", x: 620, z: -30, color: "#ffd166" },
+        { icon: "\u{1F300}", name: "\u98A8\u8ECA", x: -120, z: 320, color: "#06d6a0" },
+        { icon: "\u2693", name: "\u685F\u6A4B", x: 360, z: 500, color: "#118ab2" },
+        { icon: "\u{1F6EB}", name: "\u96E2\u9678\u5730", x: 220, z: 250, color: "#f72585" }
+      ];
+      this.masterRes = 360;
+      this.masterCanvas = document.createElement("canvas");
+      this.masterCanvas.width = this.masterRes;
+      this.masterCanvas.height = this.masterRes;
+      this._renderMasterMap();
+      this._setupEvents();
+    }
+    /** クリックやキーでモード切り替え */
+    _setupEvents() {
+      if (this.container) {
+        this.container.addEventListener("click", () => {
+          this.toggleMode();
+        });
+      }
+    }
+    toggleMode() {
+      this.mode = this.mode === "global" ? "follow" : "global";
+      if (this.modeBadge) {
+        this.modeBadge.textContent = this.mode === "global" ? "\u5168\u4F53 (ALL)" : "\u8FFD\u5F93 (ZOOM)";
+        this.modeBadge.classList.toggle("badge-zoom", this.mode === "follow");
+      }
+    }
+    /** 島の全景テクスチャを1度だけ生成（高速サンプリング） */
+    _renderMasterMap() {
+      const ctx = this.masterCanvas.getContext("2d");
+      const res = this.masterRes;
+      const half = res / 2;
+      const imgData = ctx.createImageData(res, res);
+      const data = imgData.data;
+      ctx.fillStyle = "#08172c";
+      ctx.fillRect(0, 0, res, res);
+      for (let py = 0; py < res; py++) {
+        const wz = (py - half) / half * WORLD_HALF;
+        for (let px = 0; px < res; px++) {
+          const wx = (px - half) / half * WORLD_HALF;
+          const distSq = wx * wx + wz * wz;
+          const d = Math.sqrt(distSq);
+          const h = this.terrain.getHeightAt(wx, wz);
+          const idx = (py * res + px) * 4;
+          if (h > 1.2) {
+            let r, g, b;
+            if (h < 4) {
+              r = 246;
+              g = 229;
+              b = 139;
+            } else if (h < 12) {
+              r = 72;
+              g = 212;
+              b = 130;
+            } else if (h < 55) {
+              r = 46;
+              g = 204;
+              b = 113;
+            } else if (h < 120) {
+              r = 39;
+              g = 174;
+              b = 96;
+            } else if (h < 220) {
+              r = 30;
+              g = 130;
+              b = 76;
+            } else {
+              const vd = Math.hypot(wx + 380, wz + 330);
+              if (vd < 120) {
+                r = 75;
+                g = 38;
+                b = 25;
+              } else {
+                r = 125;
+                g = 95;
+                b = 80;
+              }
+            }
+            data[idx] = r;
+            data[idx + 1] = g;
+            data[idx + 2] = b;
+            data[idx + 3] = 255;
+          } else {
+            if (d < 950) {
+              const shallow = Math.max(0, 1 - (d - 750) / 200);
+              data[idx] = Math.round(11 + 25 * shallow);
+              data[idx + 1] = Math.round(32 + 75 * shallow);
+              data[idx + 2] = Math.round(58 + 80 * shallow);
+              data[idx + 3] = 255;
+            } else {
+              data[idx] = 8;
+              data[idx + 1] = 23;
+              data[idx + 2] = 44;
+              data[idx + 3] = 255;
+            }
+          }
+        }
+      }
+      ctx.putImageData(imgData, 0, 0);
+      const volX = half + -380 / WORLD_HALF * half;
+      const volZ = half + -330 / WORLD_HALF * half;
+      const craterGrad = ctx.createRadialGradient(volX, volZ, 1, volX, volZ, 12);
+      craterGrad.addColorStop(0, "rgba(255, 80, 40, 0.9)");
+      craterGrad.addColorStop(0.5, "rgba(200, 40, 10, 0.5)");
+      craterGrad.addColorStop(1, "rgba(0, 0, 0, 0)");
+      ctx.fillStyle = craterGrad;
+      ctx.beginPath();
+      ctx.arc(volX, volZ, 12, 0, Math.PI * 2);
+      ctx.fill();
+    }
+    /** 毎フレーム更新 */
+    update(planePos, headingDeg, alt) {
+      if (!this.ctx) return;
+      const now = performance.now();
+      if (now - this.lastTrailTime > 400) {
+        this.trail.push({ x: planePos.x, z: planePos.z, alt });
+        if (this.trail.length > MAX_TRAIL) {
+          this.trail.shift();
+        }
+        this.lastTrailTime = now;
+      }
+      const size = this.size;
+      const half = size / 2;
+      const ctx = this.ctx;
+      ctx.clearRect(0, 0, size, size);
+      ctx.save();
+      ctx.beginPath();
+      ctx.arc(half, half, half - 4, 0, Math.PI * 2);
+      ctx.clip();
+      if (this.mode === "global") {
+        ctx.drawImage(this.masterCanvas, 0, 0, size, size);
+        ctx.strokeStyle = "rgba(76, 201, 240, 0.15)";
+        ctx.lineWidth = 1.5;
+        ctx.setLineDash([4, 4]);
+        ctx.beginPath();
+        ctx.arc(half, half, 1200 / WORLD_HALF * half, 0, Math.PI * 2);
+        ctx.stroke();
+        ctx.setLineDash([]);
+        this._drawRangeRings(ctx, half, [500, 1e3], WORLD_HALF);
+        this._drawLandmarks(ctx, half, WORLD_HALF, 0, 0);
+        this._drawTrail(ctx, half, WORLD_HALF, 0, 0);
+        const px = half + planePos.x / WORLD_HALF * half;
+        const pz = half + planePos.z / WORLD_HALF * half;
+        this._drawPlayer(ctx, px, pz, headingDeg, alt);
+      } else {
+        const scale = WORLD_HALF / ZOOM_HALF;
+        const sx = planePos.x / WORLD_HALF * half;
+        const sz = planePos.z / WORLD_HALF * half;
+        ctx.save();
+        ctx.translate(half, half);
+        ctx.scale(scale, scale);
+        ctx.translate(-half - sx, -half - sz);
+        ctx.drawImage(this.masterCanvas, 0, 0, size, size);
+        ctx.restore();
+        this._drawRangeRings(ctx, half, [150, 300], ZOOM_HALF);
+        this._drawLandmarks(ctx, half, ZOOM_HALF, planePos.x, planePos.z);
+        this._drawTrail(ctx, half, ZOOM_HALF, planePos.x, planePos.z);
+        this._drawPlayer(ctx, half, half, headingDeg, alt);
+      }
+      ctx.restore();
+      this._drawRadarChrome(ctx, half);
+    }
+    /** 距離レンジリング */
+    _drawRangeRings(ctx, center, distances, currentRange) {
+      ctx.strokeStyle = "rgba(76, 201, 240, 0.12)";
+      ctx.lineWidth = 1;
+      ctx.setLineDash([3, 5]);
+      for (const dist of distances) {
+        const r = dist / currentRange * center;
+        if (r < center) {
+          ctx.beginPath();
+          ctx.arc(center, center, r, 0, Math.PI * 2);
+          ctx.stroke();
+        }
+      }
+      ctx.setLineDash([]);
+    }
+    /** ランドマーク描画 */
+    _drawLandmarks(ctx, center, range, centerOffsetX, centerOffsetZ) {
+      ctx.font = "11px sans-serif";
+      ctx.textAlign = "center";
+      ctx.textBaseline = "middle";
+      for (const lm of this.landmarks) {
+        const relX = lm.x - centerOffsetX;
+        const relZ = lm.z - centerOffsetZ;
+        const px = center + relX / range * center;
+        const pz = center + relZ / range * center;
+        const dFromCenter = Math.hypot(px - center, pz - center);
+        if (dFromCenter < center - 14) {
+          ctx.font = '13px "Apple Color Emoji", "Segoe UI Emoji", sans-serif';
+          ctx.fillText(lm.icon, px, pz - 2);
+          ctx.font = 'bold 9px "Outfit", sans-serif';
+          ctx.fillStyle = "rgba(255, 255, 255, 0.85)";
+          ctx.shadowColor = "rgba(0, 0, 0, 0.8)";
+          ctx.shadowBlur = 3;
+          ctx.fillText(lm.name, px, pz + 10);
+          ctx.shadowBlur = 0;
+        }
+      }
+    }
+    /** 飛行軌跡 */
+    _drawTrail(ctx, center, range, centerOffsetX, centerOffsetZ) {
+      if (this.trail.length < 2) return;
+      ctx.save();
+      ctx.lineWidth = 2;
+      ctx.lineCap = "round";
+      ctx.lineJoin = "round";
+      for (let i = 1; i < this.trail.length; i++) {
+        const p0 = this.trail[i - 1];
+        const p1 = this.trail[i];
+        const x0 = center + (p0.x - centerOffsetX) / range * center;
+        const z0 = center + (p0.z - centerOffsetZ) / range * center;
+        const x1 = center + (p1.x - centerOffsetX) / range * center;
+        const z1 = center + (p1.z - centerOffsetZ) / range * center;
+        const alpha = i / this.trail.length * 0.45;
+        ctx.strokeStyle = `rgba(76, 201, 240, ${alpha})`;
+        ctx.beginPath();
+        ctx.moveTo(x0, z0);
+        ctx.lineTo(x1, z1);
+        ctx.stroke();
+      }
+      ctx.restore();
+    }
+    /** 自機アイコンと進行方向コーン */
+    _drawPlayer(ctx, px, pz, headingDeg, alt) {
+      ctx.save();
+      ctx.translate(px, pz);
+      ctx.save();
+      ctx.rotate(headingDeg * Math.PI / 180);
+      const beamGrad = ctx.createLinearGradient(0, 0, 0, -38);
+      beamGrad.addColorStop(0, "rgba(76, 201, 240, 0.45)");
+      beamGrad.addColorStop(1, "rgba(76, 201, 240, 0.0)");
+      ctx.fillStyle = beamGrad;
+      ctx.beginPath();
+      ctx.moveTo(0, 0);
+      ctx.lineTo(-14, -38);
+      ctx.lineTo(14, -38);
+      ctx.closePath();
+      ctx.fill();
+      ctx.fillStyle = "#ff3366";
+      ctx.strokeStyle = "#ffffff";
+      ctx.lineWidth = 1.8;
+      ctx.shadowColor = "#ff3366";
+      ctx.shadowBlur = 8;
+      ctx.beginPath();
+      ctx.moveTo(0, -9);
+      ctx.lineTo(7, 8);
+      ctx.lineTo(0, 5);
+      ctx.lineTo(-7, 8);
+      ctx.closePath();
+      ctx.fill();
+      ctx.stroke();
+      ctx.restore();
+      ctx.fillStyle = "#ffffff";
+      ctx.beginPath();
+      ctx.arc(0, 0, 2, 0, Math.PI * 2);
+      ctx.fill();
+      ctx.restore();
+    }
+    /** レーダー外枠・方位マーカー */
+    _drawRadarChrome(ctx, half) {
+      ctx.save();
+      ctx.strokeStyle = "rgba(76, 201, 240, 0.45)";
+      ctx.lineWidth = 2.5;
+      ctx.beginPath();
+      ctx.arc(half, half, half - 3, 0, Math.PI * 2);
+      ctx.stroke();
+      const dirs = [
+        { text: "N", angle: -Math.PI / 2, color: "#4cc9f0", bold: true },
+        { text: "E", angle: 0, color: "rgba(255,255,255,0.6)", bold: false },
+        { text: "S", angle: Math.PI / 2, color: "rgba(255,255,255,0.6)", bold: false },
+        { text: "W", angle: Math.PI, color: "rgba(255,255,255,0.6)", bold: false }
+      ];
+      for (const d of dirs) {
+        const r = half - 10;
+        const x = half + Math.cos(d.angle) * r;
+        const y = half + Math.sin(d.angle) * r;
+        ctx.font = d.bold ? 'bold 10px "Outfit", sans-serif' : '9px "Outfit", sans-serif';
+        ctx.fillStyle = d.color;
+        ctx.textAlign = "center";
+        ctx.textBaseline = "middle";
+        ctx.fillText(d.text, x, y);
+      }
+      ctx.restore();
+    }
+  };
+
   // js/main.js
   var INITIAL_POSITION = new Vector3(220, 160, 250);
   var renderer;
@@ -21286,6 +21590,7 @@ void main() {
   var airplane;
   var gameCam;
   var hud;
+  var minimap;
   var started = false;
   var paused = false;
   var lastTime = 0;
@@ -21327,6 +21632,7 @@ void main() {
     airplane.addToScene(scene, INITIAL_POSITION);
     gameCam = new GameCamera(camera);
     hud = new HUD();
+    minimap = new Minimap(terrain);
     setupInput();
     window.addEventListener("resize", onResize);
     document.getElementById("loading").style.display = "none";
@@ -21370,6 +21676,7 @@ void main() {
     document.getElementById("start-screen").style.display = "flex";
     airplane.reset(INITIAL_POSITION);
     gameCam.reset();
+    if (minimap) minimap.trail = [];
     resetInput();
     lastTime = performance.now();
   }
@@ -21406,6 +21713,7 @@ void main() {
         e.preventDefault();
       }
       if (e.code === "KeyH") hud.toggleHelp();
+      if (e.code === "KeyM" && minimap) minimap.toggleMode();
     });
     window.addEventListener("keyup", (e) => {
       const a = map[e.code];
@@ -21446,6 +21754,9 @@ void main() {
         let heading = Math.atan2(_fwd2.x, -_fwd2.z) * (180 / Math.PI);
         if (heading < 0) heading += 360;
         hud.update(airplane.speed, airplane.position.y, heading);
+        if (minimap) {
+          minimap.update(airplane.position, heading, airplane.position.y);
+        }
       }
     } else {
       const t = elapsed * 0.12;
