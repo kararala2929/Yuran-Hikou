@@ -1,107 +1,107 @@
 <!DOCTYPE html>
 <html lang="ja">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>遊覧飛行 — Island Flyover</title>
-    <meta name="description" content="リゾート島を飛行機で自由に遊覧する3Dフライトゲーム。現在地がひと目でわかるミニマップレーダー機能付き。">
-    <meta property="og:title" content="遊覧飛行 — Island Flyover">
-    <meta property="og:description" content="リゾート島を飛行機で自由に遊覧する3Dフライトゲーム。現在地がひと目でわかるミニマップレーダー機能付き。">
-    <meta property="og:type" content="website">
-    <meta name="twitter:card" content="summary_large_image">
-    <link rel="stylesheet" href="/style.css">
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>遊覧飛行 — Island Flyover</title>
+  <link rel="stylesheet" href="style.css">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=M+PLUS+Rounded+1c:wght@400;700;900&display=swap" rel="stylesheet">
 </head>
 <body>
-
-<!-- ═══════════ ローディング画面 ═══════════ -->
-<div id="loading">
-    <div class="loading-content">
-        <h1>🏝️ 遊覧飛行</h1>
-        <p>島を生成中…</p>
-        <div class="loading-bar"><div class="loading-fill"></div></div>
+  <!-- ローディング画面 -->
+  <div id="loading">
+    <div class="spinner"></div>
+    <div class="loading-title">🏝️ 遊覧飛行</div>
+    <div class="loading-text">島を生成中...</div>
+    <div class="loading-bar-outer">
+      <div id="loading-bar" class="loading-bar-inner"></div>
     </div>
-</div>
+  </div>
 
-<!-- ═══════════ スタート画面 ═══════════ -->
-<div id="start-screen" style="display:none">
-    <div class="start-content">
-        <h1>🏝️ 遊覧飛行</h1>
-        <h2>Island Flyover</h2>
-        <button id="start-btn">✈️ フライト開始</button>
+  <!-- スタート画面 -->
+  <div id="start-screen" style="display:none">
+    <div class="title-card">
+      <div class="game-logo">🏝️ 遊覧飛行</div>
+      <div class="game-sub">ISLAND FLYOVER</div>
+      <p class="game-desc">
+        南の島の上空をセスナで優雅に飛び回ろう。<br>
+        美しい海、白い砂浜、緑豊かな山、秘密の洞窟。<br>
+        のんびり自由気ままな空の旅へ。
+      </p>
+      <div class="controls-guide">
+        <div class="ctrl-row"><kbd>W</kbd> / <kbd>↑</kbd> <span>機首下げ（降下）</span></div>
+        <div class="ctrl-row"><kbd>S</kbd> / <kbd>↓</kbd> <span>機首上げ（上昇）</span></div>
+        <div class="ctrl-row"><kbd>A</kbd> / <kbd>←</kbd> <span>左旋回</span></div>
+        <div class="ctrl-row"><kbd>D</kbd> / <kbd>→</kbd> <span>右旋回</span></div>
+        <div class="ctrl-row"><kbd>Shift</kbd> <span>加速</span></div>
+        <div class="ctrl-row"><kbd>Ctrl</kbd> <span>減速</span></div>
+        <div class="ctrl-row"><kbd>C</kbd> <span>カメラ視点切替</span></div>
+        <div class="ctrl-row"><kbd>M</kbd> <span>ミニマップ切替</span></div>
+        <div class="ctrl-row"><kbd>P</kbd> <span>一時停止</span></div>
+      </div>
+      <button id="btn-start" class="btn-primary">✈️ フライト開始</button>
     </div>
-</div>
+  </div>
 
-<!-- ═══════════ ゲームコンテナ ═══════════ -->
-<div id="game-container"></div>
+  <!-- ゲームコンテナ -->
+  <div id="game-container"></div>
 
-<!-- ═══════════ HUD ═══════════ -->
-<div id="hud" style="display:none">
-    <!-- 速度 & 高度 -->
-    <div id="hud-left" class="hud-glass">
-        <div class="hud-row">
-            <span class="hud-label">速度</span>
-            <span class="hud-val"><span id="val-speed">0</span><span class="hud-unit"> km/h</span></span>
+  <!-- HUD -->
+  <div id="hud" style="display:none">
+    <!-- ミニマップ -->
+    <div id="minimap-container">
+      <canvas id="minimap-canvas" width="160" height="160"></canvas>
+      <div id="minimap-compass">N</div>
+      <div id="minimap-zoom-label">1.0x</div>
+    </div>
+
+    <!-- インストルメント（計器） -->
+    <div class="instruments">
+      <div class="inst-panel">
+        <div class="inst-label">SPEED</div>
+        <div class="inst-val" id="val-speed">0</div>
+        <div class="inst-unit">km/h</div>
+      </div>
+      <div class="inst-panel">
+        <div class="inst-label">ALTITUDE</div>
+        <div class="inst-val" id="val-alt">0</div>
+        <div class="inst-unit">m</div>
+      </div>
+      <div class="inst-panel">
+        <div class="inst-label">THROTTLE</div>
+        <div class="inst-bar-wrap">
+          <div class="inst-bar" id="bar-throttle" style="height:50%"></div>
         </div>
-        <div class="hud-row">
-            <span class="hud-label">高度</span>
-            <span class="hud-val"><span id="val-alt">0</span><span class="hud-unit"> m</span></span>
-        </div>
+        <div class="inst-unit" id="val-throttle">50%</div>
+      </div>
     </div>
 
-    <!-- コンパス -->
-    <div id="hud-top" class="hud-glass">
-        <span id="val-heading">000° N</span>
+    <!-- カメラ視点インジケータ -->
+    <div id="camera-mode-badge">CHASE VIEW</div>
+
+    <!-- ポーズボタン -->
+    <button id="btn-pause" class="btn-icon">⏸️</button>
+  </div>
+
+  <!-- ポーズオーバーレイ -->
+  <div id="pause-screen" style="display:none">
+    <div class="pause-card">
+      <div class="pause-title">PAUSED</div>
+      <button id="btn-resume" class="btn-primary">再開</button>
+      <button id="btn-restart" class="btn-secondary">最初から</button>
     </div>
+  </div>
 
-    <!-- 一時停止ボタン -->
-    <button id="pause-btn" class="hud-glass hud-btn" title="一時停止 (P / Esc)" aria-label="一時停止">
-        <svg viewBox="0 0 24 24" width="20" height="20" fill="currentColor">
-            <rect x="6" y="4" width="4" height="16" rx="1.5"></rect>
-            <rect x="14" y="4" width="4" height="16" rx="1.5"></rect>
-        </svg>
-    </button>
-
-    <!-- ═══════════ ミニマップ (GPS レーダー) ═══════════ -->
-    <div id="minimap-container" class="hud-glass" title="クリックまたは [M] キーで全体/追従切替">
-        <canvas id="minimap-canvas"></canvas>
-        <div id="minimap-mode-badge" class="minimap-badge">全体 (ALL)</div>
+  <!-- 坠落・リスポーン画面 -->
+  <div id="crash-screen" style="display:none">
+    <div class="crash-card">
+      <div class="crash-title">🌊 着水！</div>
+      <p>安全な高度に戻ります...</p>
     </div>
+  </div>
 
-    <!-- 速度バー -->
-    <div id="speed-bar-container">
-        <div id="speed-bar" style="height:33%"></div>
-    </div>
-
-    <!-- 操作ヘルプ -->
-    <div id="help-panel" class="hud-glass">
-        <div class="help-grid">
-            <span class="key">W / ↑</span><span class="desc">降下</span>
-            <span class="key">S / ↓</span><span class="desc">上昇</span>
-            <span class="key">A / ←</span><span class="desc">左ロール</span>
-            <span class="key">D / →</span><span class="desc">右ロール</span>
-            <span class="key">Q / E</span><span class="desc">左右ヨー</span>
-            <span class="key">Shift</span><span class="desc">加速</span>
-            <span class="key">Ctrl</span><span class="desc">減速</span>
-            <span class="key">M</span><span class="desc">マップ切替</span>
-            <span class="key">P / Esc</span><span class="desc">一時停止</span>
-            <span class="key">H</span><span class="desc">ヘルプ表示</span>
-        </div>
-    </div>
-</div>
-
-<!-- ═══════════ 一時停止画面 ═══════════ -->
-<div id="pause-screen" style="display:none">
-    <div class="pause-content">
-        <h2>⏸️ 一時停止</h2>
-        <p class="pause-subtitle">PAUSED</p>
-        <div class="pause-btn-group">
-            <button id="resume-btn" class="menu-btn primary-btn">▶️ 再開</button>
-            <button id="home-btn" class="menu-btn secondary-btn">🏠 ホームへ戻る</button>
-        </div>
-    </div>
-</div>
-
-<!-- ═══════════ メインスクリプト ═══════════ -->
-<script type="module" src="/js/main.js"></script>
+  <script src="game.bundle.js"></script>
 </body>
 </html>
