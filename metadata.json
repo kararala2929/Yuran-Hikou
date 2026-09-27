@@ -1,0 +1,6 @@
+{
+  "name": "遊覧飛行 — Island Flyover",
+  "description": "リゾート島を飛行機で自由に遊覧する3Dフライトゲーム。現在地がひと目でわかるミニマップレーダー機能付き。",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}

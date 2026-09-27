@@ -1,17 +1,14 @@
 {
   "name": "island-flyover",
   "version": "1.0.0",
-  "private": true,
-  "description": "リゾート島を飛行機で自由に遊覧する3Dフライトゲーム",
+  "description": "遊覧飛行ゲーム",
   "scripts": {
-    "build": "esbuild js/main.js --bundle --outfile=game.bundle.js --format=iife",
-    "watch": "esbuild js/main.js --bundle --outfile=game.bundle.js --format=iife --watch"
+    "build": "esbuild js/main.js --bundle --outfile=game.bundle.js --format=iife"
   },
   "dependencies": {
-    "simplex-noise": "^4.0.3",
-    "three": "^0.170.0"
+    "three": "^0.160.0"
   },
   "devDependencies": {
-    "esbuild": "^0.25.0"
+    "esbuild": "^0.20.0"
   }
 }
