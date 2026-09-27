@@ -4,8 +4,12 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>遊覧飛行 — Island Flyover</title>
-    <meta name="description" content="リゾート島を飛行機で自由に遊覧する3Dフライトゲーム">
-    <link rel="stylesheet" href="style.css">
+    <meta name="description" content="リゾート島を飛行機で自由に遊覧する3Dフライトゲーム。現在地がひと目でわかるミニマップレーダー機能付き。">
+    <meta property="og:title" content="遊覧飛行 — Island Flyover">
+    <meta property="og:description" content="リゾート島を飛行機で自由に遊覧する3Dフライトゲーム。現在地がひと目でわかるミニマップレーダー機能付き。">
+    <meta property="og:type" content="website">
+    <meta name="twitter:card" content="summary_large_image">
+    <link rel="stylesheet" href="/style.css">
 </head>
 <body>
 
@@ -32,7 +36,6 @@
 
 <!-- ═══════════ HUD ═══════════ -->
 <div id="hud" style="display:none">
-
     <!-- 速度 & 高度 -->
     <div id="hud-left" class="hud-glass">
         <div class="hud-row">
@@ -50,11 +53,6 @@
         <span id="val-heading">000° N</span>
     </div>
 
-    <!-- 速度バー -->
-    <div id="speed-bar-container">
-        <div id="speed-bar" style="height:33%"></div>
-    </div>
-
     <!-- 一時停止ボタン -->
     <button id="pause-btn" class="hud-glass hud-btn" title="一時停止 (P / Esc)" aria-label="一時停止">
         <svg viewBox="0 0 24 24" width="20" height="20" fill="currentColor">
@@ -62,6 +60,17 @@
             <rect x="14" y="4" width="4" height="16" rx="1.5"></rect>
         </svg>
     </button>
+
+    <!-- ═══════════ ミニマップ (GPS レーダー) ═══════════ -->
+    <div id="minimap-container" class="hud-glass" title="クリックまたは [M] キーで全体/追従切替">
+        <canvas id="minimap-canvas"></canvas>
+        <div id="minimap-mode-badge" class="minimap-badge">全体 (ALL)</div>
+    </div>
+
+    <!-- 速度バー -->
+    <div id="speed-bar-container">
+        <div id="speed-bar" style="height:33%"></div>
+    </div>
 
     <!-- 操作ヘルプ -->
     <div id="help-panel" class="hud-glass">
@@ -73,11 +82,11 @@
             <span class="key">Q / E</span><span class="desc">左右ヨー</span>
             <span class="key">Shift</span><span class="desc">加速</span>
             <span class="key">Ctrl</span><span class="desc">減速</span>
+            <span class="key">M</span><span class="desc">マップ切替</span>
             <span class="key">P / Esc</span><span class="desc">一時停止</span>
             <span class="key">H</span><span class="desc">ヘルプ表示</span>
         </div>
     </div>
-
 </div>
 
 <!-- ═══════════ 一時停止画面 ═══════════ -->
@@ -93,7 +102,6 @@
 </div>
 
 <!-- ═══════════ メインスクリプト ═══════════ -->
-<script src="game.bundle.js"></script>
-
+<script type="module" src="/js/main.js"></script>
 </body>
 </html>

@@ -13,12 +13,13 @@ import { IslandStructures } from './island.js';
 import { Airplane }         from './airplane.js';
 import { GameCamera }       from './camera.js';
 import { HUD }              from './hud.js';
+import { Minimap }          from './minimap.js';
 
 /* ════════════════════ グローバル状態 ════════════════════ */
 const INITIAL_POSITION = new THREE.Vector3(220, 160, 250);
 
 let renderer, scene, camera;
-let terrain, beach, water, sky, island, airplane, gameCam, hud;
+let terrain, beach, water, sky, island, airplane, gameCam, hud, minimap;
 let started  = false;
 let paused   = false;
 let lastTime = 0;
@@ -74,6 +75,9 @@ function init() {
 
     /* ── HUD ── */
     hud = new HUD();
+
+    /* ── ミニマップ (GPS レーダー) ── */
+    minimap = new Minimap(terrain);
 
     /* ── 入力 ── */
     setupInput();
@@ -132,6 +136,7 @@ function returnToHome() {
     document.getElementById('start-screen').style.display = 'flex';
     airplane.reset(INITIAL_POSITION);
     gameCam.reset();
+    if (minimap) minimap.trail = [];
     resetInput();
     lastTime = performance.now();
 }
@@ -164,6 +169,7 @@ function setupInput() {
         const a = map[e.code];
         if (a) { input[a] = true; e.preventDefault(); }
         if (e.code === 'KeyH') hud.toggleHelp();
+        if (e.code === 'KeyM' && minimap) minimap.toggleMode();
     });
 
     window.addEventListener('keyup', (e) => {
@@ -215,6 +221,9 @@ function loop(now) {
             let heading = Math.atan2(_fwd.x, -_fwd.z) * (180 / Math.PI);
             if (heading < 0) heading += 360;
             hud.update(airplane.speed, airplane.position.y, heading);
+            if (minimap) {
+                minimap.update(airplane.position, heading, airplane.position.y);
+            }
         }
     } else {
         /* ── 開始前: 島を俯瞰する回転カメラ ── */
