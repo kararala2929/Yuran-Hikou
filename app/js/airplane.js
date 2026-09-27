@@ -36,18 +36,20 @@ export class Airplane {
 
     /* ═══════════════════ モデル構築 ═══════════════════ */
     _build() {
-        const M = (color) => new THREE.MeshLambertMaterial({ color });
+        const M = (color, roughness = 0.45, metalness = 0.1) =>
+            new THREE.MeshStandardMaterial({ color, roughness, metalness });
 
         // ── 胴体（Z軸方向）
-        const bodyGeo = new THREE.CylinderGeometry(1.0, 1.0, 7, 8);
+        const bodyGeo = new THREE.CylinderGeometry(1.0, 1.0, 7, 12);
         bodyGeo.rotateX(Math.PI / 2);   // Y軸→Z軸
-        const body = new THREE.Mesh(bodyGeo, M(0xe63946));
+        const body = new THREE.Mesh(bodyGeo, M(0xd42b38, 0.4, 0.15));
         this.group.add(body);
 
         // ── コクピット
-        const cockGeo = new THREE.SphereGeometry(0.9, 8, 6, 0, Math.PI * 2, 0, Math.PI * 0.5);
-        const cockMat = new THREE.MeshLambertMaterial({
-            color: 0x4cc9f0, transparent: true, opacity: 0.65,
+        const cockGeo = new THREE.SphereGeometry(0.9, 12, 8, 0, Math.PI * 2, 0, Math.PI * 0.5);
+        const cockMat = new THREE.MeshStandardMaterial({
+            color: 0x88ddf8, transparent: true, opacity: 0.55,
+            roughness: 0.1, metalness: 0.3,
         });
         const cockpit = new THREE.Mesh(cockGeo, cockMat);
         cockpit.scale.set(0.85, 0.7, 1.3);
@@ -217,6 +219,16 @@ export class Airplane {
             const s = 1 + altAboveGround * 0.005;
             this.shadow.scale.setScalar(s);
             this.shadow.material.opacity = Math.max(0.04, 0.2 - altAboveGround * 0.0006);
+        }
+    }
+
+    reset(startPos = new THREE.Vector3(220, 160, 250)) {
+        this.group.position.copy(startPos);
+        this.group.rotation.set(0, Math.PI * 0.75, 0);
+        this.group.quaternion.setFromEuler(this.group.rotation);
+        this.speed = BASE_SPEED;
+        if (this.propeller) {
+            this.propeller.rotation.z = 0;
         }
     }
 

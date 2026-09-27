@@ -6,6 +6,7 @@
  */
 import * as THREE from 'three';
 import { Terrain }          from './terrain.js';
+import { Beach }            from './beach.js';
 import { Water }            from './water.js';
 import { Sky }              from './sky.js';
 import { IslandStructures } from './island.js';
@@ -14,9 +15,12 @@ import { GameCamera }       from './camera.js';
 import { HUD }              from './hud.js';
 
 /* ════════════════════ グローバル状態 ════════════════════ */
+const INITIAL_POSITION = new THREE.Vector3(220, 160, 250);
+
 let renderer, scene, camera;
-let terrain, water, sky, island, airplane, gameCam, hud;
+let terrain, beach, water, sky, island, airplane, gameCam, hud;
 let started  = false;
+let paused   = false;
 let lastTime = 0;
 
 const input = {
@@ -45,6 +49,10 @@ function init() {
     terrain = new Terrain();
     terrain.generate(scene);
 
+    /* ── 砂浜（独立リング） ── */
+    beach = new Beach(terrain);
+    beach.generate(scene);
+
     /* ── 海 ── */
     water = new Water();
     water.addToScene(scene);
@@ -59,7 +67,7 @@ function init() {
 
     /* ── 飛行機 ── */
     airplane = new Airplane();
-    airplane.addToScene(scene, new THREE.Vector3(220, 160, 250));
+    airplane.addToScene(scene, INITIAL_POSITION);
 
     /* ── カメラコントローラ ── */
     gameCam = new GameCamera(camera);
@@ -78,17 +86,58 @@ function init() {
     document.getElementById('start-screen').style.display = 'flex';
 
     document.getElementById('start-btn').addEventListener('click', startGame);
+    document.getElementById('pause-btn').addEventListener('click', pauseGame);
+    document.getElementById('resume-btn').addEventListener('click', resumeGame);
+    document.getElementById('home-btn').addEventListener('click', returnToHome);
 
     /* ── ゲームループ開始 ── */
     lastTime = performance.now();
     requestAnimationFrame(loop);
 }
 
-/* ════════════════════ ゲーム開始 ════════════════════ */
+/* ════════════════════ ゲーム開始・停止・ホーム ════════════════════ */
 function startGame() {
     document.getElementById('start-screen').style.display = 'none';
     document.getElementById('hud').style.display = 'block';
     started = true;
+    paused = false;
+    lastTime = performance.now();
+}
+
+function pauseGame() {
+    if (!started || paused) return;
+    paused = true;
+    document.getElementById('pause-screen').style.display = 'flex';
+    resetInput();
+}
+
+function resumeGame() {
+    if (!started || !paused) return;
+    paused = false;
+    document.getElementById('pause-screen').style.display = 'none';
+    lastTime = performance.now();
+}
+
+function togglePause() {
+    if (!started) return;
+    if (paused) resumeGame();
+    else pauseGame();
+}
+
+function returnToHome() {
+    paused = false;
+    started = false;
+    document.getElementById('pause-screen').style.display = 'none';
+    document.getElementById('hud').style.display = 'none';
+    document.getElementById('start-screen').style.display = 'flex';
+    airplane.reset(INITIAL_POSITION);
+    gameCam.reset();
+    resetInput();
+    lastTime = performance.now();
+}
+
+function resetInput() {
+    for (const k in input) input[k] = false;
 }
 
 /* ════════════════════ 入力設定 ════════════════════ */
@@ -104,6 +153,14 @@ function setupInput() {
     };
 
     window.addEventListener('keydown', (e) => {
+        if (e.code === 'KeyP' || e.code === 'Escape') {
+            togglePause();
+            e.preventDefault();
+            return;
+        }
+
+        if (paused) return;
+
         const a = map[e.code];
         if (a) { input[a] = true; e.preventDefault(); }
         if (e.code === 'KeyH') hud.toggleHelp();
@@ -115,6 +172,7 @@ function setupInput() {
     });
 
     window.addEventListener('mousemove', (e) => {
+        if (paused) return;
         const mx = (e.clientX / window.innerWidth  - 0.5) * 2;
         const my = (e.clientY / window.innerHeight - 0.5) * 2;
         gameCam.setMouse(mx, my);
@@ -122,7 +180,7 @@ function setupInput() {
 
     // タブ切替時のキー残り防止
     window.addEventListener('blur', () => {
-        for (const k in input) input[k] = false;
+        resetInput();
     });
 }
 
@@ -144,19 +202,20 @@ function loop(now) {
     lastTime = now;
 
     if (started) {
-        /* ── ゲームプレイ ── */
-        airplane.update(dt, input, terrain);
-        gameCam.update(dt, airplane);
-        sky.update(dt);
-        island.update(dt);
-        water.update(elapsed);
+        if (!paused) {
+            /* ── ゲームプレイ ── */
+            airplane.update(dt, input, terrain);
+            gameCam.update(dt, airplane);
+            sky.update(dt);
+            island.update(dt);
+            water.update(elapsed, camera);
 
-        /* ── HUD 更新 ── */
-        _fwd.set(0, 0, -1).applyQuaternion(airplane.quaternion);
-        let heading = Math.atan2(_fwd.x, -_fwd.z) * (180 / Math.PI);
-        if (heading < 0) heading += 360;
-        hud.update(airplane.speed, airplane.position.y, heading);
-
+            /* ── HUD 更新 ── */
+            _fwd.set(0, 0, -1).applyQuaternion(airplane.quaternion);
+            let heading = Math.atan2(_fwd.x, -_fwd.z) * (180 / Math.PI);
+            if (heading < 0) heading += 360;
+            hud.update(airplane.speed, airplane.position.y, heading);
+        }
     } else {
         /* ── 開始前: 島を俯瞰する回転カメラ ── */
         const t = elapsed * 0.12;
@@ -166,7 +225,7 @@ function loop(now) {
             Math.sin(t) * 750,
         );
         camera.lookAt(0, 40, 0);
-        water.update(elapsed);
+        water.update(elapsed, camera);
         sky.update(dt);
     }
 

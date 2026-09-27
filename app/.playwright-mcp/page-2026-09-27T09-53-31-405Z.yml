@@ -1,0 +1,4 @@
+- generic [ref=e3]:
+  - heading "🏝️ 遊覧飛行" [level=1] [ref=e4]
+  - heading "Island Flyover" [level=2] [ref=e5]
+  - button "✈️ フライト開始" [ref=e6] [cursor=pointer]

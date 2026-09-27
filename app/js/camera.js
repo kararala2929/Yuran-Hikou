@@ -32,6 +32,13 @@ export class GameCamera {
         this.mouseY = y;
     }
 
+    /** カメラ追従状態をリセット */
+    reset() {
+        this.mouseX = 0;
+        this.mouseY = 0;
+        this._first = true;
+    }
+
     /** 毎フレーム更新 */
     update(dt, airplane) {
         /* 後方上方オフセット（ローカル→ワールド） */

@@ -6,16 +6,6 @@
     <title>遊覧飛行 — Island Flyover</title>
     <meta name="description" content="リゾート島を飛行機で自由に遊覧する3Dフライトゲーム">
     <link rel="stylesheet" href="style.css">
-
-    <script type="importmap">
-    {
-        "imports": {
-            "three":          "https://cdn.jsdelivr.net/npm/three@0.170.0/build/three.module.js",
-            "three/addons/":  "https://cdn.jsdelivr.net/npm/three@0.170.0/examples/jsm/",
-            "simplex-noise":  "https://cdn.jsdelivr.net/npm/simplex-noise@4.0.3/+esm"
-        }
-    }
-    </script>
 </head>
 <body>
 
@@ -65,6 +55,14 @@
         <div id="speed-bar" style="height:33%"></div>
     </div>
 
+    <!-- 一時停止ボタン -->
+    <button id="pause-btn" class="hud-glass hud-btn" title="一時停止 (P / Esc)" aria-label="一時停止">
+        <svg viewBox="0 0 24 24" width="20" height="20" fill="currentColor">
+            <rect x="6" y="4" width="4" height="16" rx="1.5"></rect>
+            <rect x="14" y="4" width="4" height="16" rx="1.5"></rect>
+        </svg>
+    </button>
+
     <!-- 操作ヘルプ -->
     <div id="help-panel" class="hud-glass">
         <div class="help-grid">
@@ -75,14 +73,27 @@
             <span class="key">Q / E</span><span class="desc">左右ヨー</span>
             <span class="key">Shift</span><span class="desc">加速</span>
             <span class="key">Ctrl</span><span class="desc">減速</span>
+            <span class="key">P / Esc</span><span class="desc">一時停止</span>
             <span class="key">H</span><span class="desc">ヘルプ表示</span>
         </div>
     </div>
 
 </div>
 
+<!-- ═══════════ 一時停止画面 ═══════════ -->
+<div id="pause-screen" style="display:none">
+    <div class="pause-content">
+        <h2>⏸️ 一時停止</h2>
+        <p class="pause-subtitle">PAUSED</p>
+        <div class="pause-btn-group">
+            <button id="resume-btn" class="menu-btn primary-btn">▶️ 再開</button>
+            <button id="home-btn" class="menu-btn secondary-btn">🏠 ホームへ戻る</button>
+        </div>
+    </div>
+</div>
+
 <!-- ═══════════ メインスクリプト ═══════════ -->
-<script type="module" src="js/main.js"></script>
+<script src="game.bundle.js"></script>
 
 </body>
 </html>
